@@ -31,9 +31,9 @@ options:
  \
 -h, --help  show this help message and exit
 \
--START START    Minimum of preferred time period
+-start start    Minimum of preferred time period
 \
--END END    Maximum of preferred time period
+-end end    Maximum of preferred time period
 
 
 

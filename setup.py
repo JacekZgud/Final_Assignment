@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="FinalAssignment",
-    version="0.0.1",
+    version="1.0.0",
     author="Jacek Zgud",
     author_email="jacek.zgud2@gmail.com",
     description="Assignment package for Python in data science course",

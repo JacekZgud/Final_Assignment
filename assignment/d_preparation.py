@@ -4,10 +4,6 @@ import re
 import argparse
 
 
-# function input: folder name of relevant data
-# output: required data-file in python environment  with .csv extension
-# function works only on file system  which
-# structure is the same as the one supplied by learning team to moodle (plus unpacked)
 def pars():
     parser = argparse.ArgumentParser(description='Analyse historical emissions and gdp data')
     parser.add_argument("gdp", type=argparse.FileType('r'), help="trace to file containing gdp")
@@ -20,6 +16,12 @@ def pars():
 
 
 def file_opener(file_name, emi=0):
+    """
+
+    :param file_name: file name
+    :param emi: is it emission data frame or not
+    :return: file in csv form
+    """
     if emi == 1:
         file = pd.read_csv(file_name, header=0)
     else:
@@ -27,11 +29,14 @@ def file_opener(file_name, emi=0):
     return file
 
 
-# Function that selects years in data if no other year-span is supplied
-# input: set of three data-like structures
-# output: set of three data-like structures but trimmed to have the same year span which is the intersection of
-# year spans of those three
 def years_merger(population, gdp_loc, emissions):
+    """
+    :param population: population data frame
+    :param gdp_loc: gdp data frame
+    :param emissions: emissions data frame
+    :return: data frames but trimmed to contain only the same year span
+    """
+
     pop_years = population.columns[1:]
     gdp_years = gdp_loc.columns[1:]
     em_years = emissions.Year.unique().astype('str')
@@ -46,6 +51,15 @@ def years_merger(population, gdp_loc, emissions):
 # input: set of three data-like structures
 # output: set of three data-like structures but trimmed to relevant year interval.
 def years_interval_merger(population, gdp_loc, emissions, beginning, end):
+    """
+
+    :param population: population data frame
+    :param gdp_loc: gdp data frame
+    :param emissions: emissions data frame
+    :param beginning: lower limit of time interval
+    :param end: greater limit of time interval
+    :return: data frames but trimmed to contain only the same year span given in parameters of programme
+    """
     beginning = int(beginning)
     end = int(end) + 1
     all_years = list(range(beginning, end))
@@ -56,15 +70,22 @@ def years_interval_merger(population, gdp_loc, emissions, beginning, end):
     return [population, gdp_loc, emissions]
 
 
-# Function that cleans columns with country names, changes letters to lower ones and removes all words in brackets
-# input: column of relevant data frame
-# output: column of data frame but with changed letters to lower ones and removed all words in brackets
 def country_cleaner_1(data):
+    """
+
+    :param data: column of relevant data frame
+    :return: column of data frame but with changed letters to lower ones
+    """
     data = data.apply(lambda x: x.lower())
     return data
 
 
 def country_cleaner_2(data):
+    """
+
+    :param data: column of relevant data frame
+    :return: column of data frame but with words in brackets removed
+    """
     data = data.apply(lambda x: re.sub(" \(.*?\)", "", x))
     data = data.apply(lambda x: re.sub("republic of ", "", x))
 
@@ -72,6 +93,13 @@ def country_cleaner_2(data):
 
 
 def data_merger(pop, gdp, em):
+    """
+
+    :param pop: population data frame
+    :param gdp: gdp data frame
+    :param em: emissions dataframe
+    :return: merged in one dataframe
+    """
     pop_gdp = pd.merge(pop, gdp, how='inner')
     pop_gdp = pop_gdp[['Year', 'Country Name', 'Population', 'Gdp']]
     pop_gdp = pop_gdp[
@@ -83,6 +111,12 @@ def data_merger(pop, gdp, em):
 
 
 def data_loss(pop, em):
+    """
+
+    :param pop: data frame containing "Country Name" column
+    :param em: data frame containing "Country Name" column
+    :return: percent value of intersection of entries in column "Country Name" of both data frames
+    """
     rat1 = len(list(np.intersect1d(em['Country Name'].unique(), pop['Country Name'].unique())))\
           / len(list(pop['Country Name'].unique()))
     rat2 = len(list(np.intersect1d(em['Country Name'].unique(), pop['Country Name'].unique())))\
@@ -91,6 +125,15 @@ def data_loss(pop, em):
 
 
 def data_cleaner(pop, gdp, em, bg, end):
+    """
+
+    :param pop: data frame
+    :param gdp: data frame
+    :param em: data frame
+    :param bg: data frame
+    :param end: data frame
+    :return: dataframes with dropped all na rows, trimmed to have the same columns
+    """
     pop = pop.dropna(axis=1, how='all')
     gdp = gdp.dropna(axis=1, how='all')
     em = em.dropna(axis=0, how='all')
